@@ -24,22 +24,26 @@ function App() {
 
   const login = () => {
     Axios.post('http://localhost:8081/login',
-      { username: usernameLog, password: passwordLog }).then((response) => {
-
-        if (response.data.message) {
+      { username: usernameLog, password: passwordLog })
+      .then((response) => {
+        console.log(response.data.result[0]);
+        if (!response.data.message) {
           setLoginStatus(response.data.message)
         } else {
-          setLoginStatus(`User ID: ${response.data[0].id}, Username: ${response.data[0].username}`);
+          // console.log(response.data);
+          setLoginStatus(response.data[0].username)
+          // setLoginStatus(`User ID: ${response.data.result[0].id}, Username: ${response.data.result[0].username}`);
 
         }
-        // console.log(response.data);
+
       })
+
   }
 
   useEffect(() => {
     Axios.get("http://localhost:8081/login").then((response) => {
       console.log(response);
-      if (response.data.loggedIn == true)
+      if (response.data.loggedIn === true)
         setLoginStatus(response.data.user[0].username)
     })
   }, [])

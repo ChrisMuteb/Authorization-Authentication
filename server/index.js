@@ -14,7 +14,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-    origin: ["http://localhost:3001"],
+    origin: ["http://localhost:3000"],
     methods: ["GET", "POST"],
     credentials: true
 }));
@@ -56,6 +56,26 @@ app.post('/register', (req, res) => {
 
 })
 
+const verifyJWT = (req, res, next) => {
+    const token = req.headers['x-access-token']
+
+    if (!token) {
+        res.send('Yo, we need a token, please give it to us next time!')
+    } else {
+        jwt.verify(token, "jwtSecret", (err, decoded) => {
+            if (err) {
+                res.json({ auth: false, message: "U failed to authenticate" })
+            } else {
+                req.userId = decoded.id;// variable called userId
+                next();
+            }
+        })
+    }
+}
+app.get('/isUserAuth', verifyJWT, (req, res) => {
+    res.send("Yo, u are authenticated Congrats!")
+})
+
 app.get('/login', (req, res) => {
     if (req.session.user) {
         res.send({ loggedIn: true, user: req.session.user })
@@ -80,15 +100,14 @@ app.post('/login', (req, res) => {
                 bcrypt.compare(password, result[0].password, (error, response) => {
                     if (response) {
 
-                        console.log(req.session.user);
-
                         const id = result[0].id
+                        console.log(result[0].id)
                         const token = jwt.sign({ id }, "jwtSecret", {
                             expiresIn: 300,// 5min
                         })
                         req.session.user = result;// create a session
 
-                        res.send(result)
+                        res.json({ auth: true, token: token, result: result })
                     } else {
                         res.send({ message: "wrong username/password combination" })
                     }
