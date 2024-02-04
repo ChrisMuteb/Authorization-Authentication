@@ -1,0 +1,19 @@
+.App {
+  border: solid black 1px;
+  margin: auto;
+  width: 50%;
+  padding: 10px;
+}
+
+.registration,
+.login {
+  margin: auto;
+  width: 80%;
+  /* border: solid black 1px; */
+
+}
+
+input {
+
+  width: 100%;
+}
