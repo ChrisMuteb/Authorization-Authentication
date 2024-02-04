@@ -7,7 +7,8 @@ function App() {
   const [passwordReg, setPasswordReg] = useState('');
   const [usernameLog, setUsernameLog] = useState('');
   const [passwordLog, setPasswordLog] = useState('');
-  const [loginStatus, setLoginStatus] = useState('');
+  const [loginStatus, setLoginStatus] = useState(false);
+
 
   Axios.defaults.withCredentials = true
 
@@ -27,11 +28,12 @@ function App() {
       { username: usernameLog, password: passwordLog })
       .then((response) => {
         console.log(response.data.result[0]);
-        if (!response.data.message) {
-          setLoginStatus(response.data.message)
+        if (!response.data.auth) {
+          setLoginStatus(false)
         } else {
           // console.log(response.data);
-          setLoginStatus(response.data[0].username)
+          localStorage.setItem("token", response.data.token)
+          setLoginStatus(true)
           // setLoginStatus(`User ID: ${response.data.result[0].id}, Username: ${response.data.result[0].username}`);
 
         }
@@ -40,6 +42,7 @@ function App() {
 
   }
 
+
   useEffect(() => {
     Axios.get("http://localhost:8081/login").then((response) => {
       console.log(response);
@@ -47,6 +50,16 @@ function App() {
         setLoginStatus(response.data.user[0].username)
     })
   }, [])
+
+  const userAuthenticated = () => {
+    Axios.get("http://localhost:8081/isUserAuth", {
+      headers: {
+        "x-access-token": localStorage.getItem("token"),
+      }
+    }).then((response) => {
+      console.log(response)
+    })
+  }
 
   return (
     <div className="App">
@@ -66,8 +79,11 @@ function App() {
           onChange={(e) => setPasswordLog(e.target.value)} /><br />
         <button onClick={login}> Login </button>
 
-        <h1>{loginStatus}</h1>
+
       </div>
+      {loginStatus &&
+        <button onClick={userAuthenticated}>Check if Authenticated</button>
+      }
     </div>
   );
 }

@@ -109,11 +109,11 @@ app.post('/login', (req, res) => {
 
                         res.json({ auth: true, token: token, result: result })
                     } else {
-                        res.send({ message: "wrong username/password combination" })
+                        res.json({ auth: false, message: "wwrong username/password combination" })
                     }
                 })
             } else {
-                res.send({ message: 'User does not exist' })
+                res.json({ auth: false, message: 'no user exists' })
             }
 
 
